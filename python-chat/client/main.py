@@ -19,7 +19,7 @@ async def send_messages(writer):
 
     while True:
 
-        message = await asyncio.to_thread(input, "> ")
+        message = await asyncio.to_thread(input, "")
 
         if not message:
             continue

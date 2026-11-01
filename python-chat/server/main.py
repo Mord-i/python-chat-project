@@ -39,7 +39,7 @@ class ChatServer:
                 "room": None
             }
 
-            writer.write(b"Welcome to the chat server!\n")
+            writer.write(f"Welcome to the chat server {username}!\n".encode())
             await writer.drain()
 
             print(f"User '{username}' connected from {address}")
@@ -80,7 +80,6 @@ class ChatServer:
             pass
 
         finally:
-            #TODO: does leave room means the user is leaving the chat server or just leaving the room?
             if current_room:
                 await self.leave_room(writer, username, current_room)
 
