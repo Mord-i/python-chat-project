@@ -36,6 +36,7 @@ class ChatServer:
                         break
             #TODO username uniqeness
             #SZIA
+            #SZIA 2
 
             else:
                 while True:
