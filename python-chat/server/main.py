@@ -35,6 +35,7 @@ class ChatServer:
                     if username not in existing_users:
                         break
             #TODO username uniqeness
+            #SZIA
 
             else:
                 while True:
