@@ -19,41 +19,40 @@ class ChatServer:
         print(f"Connection from: {address}")
 
         try:
-            #Receive the username from the client
-            data = await reader.readline()
-            #username = data.decode().strip()
+            while True:
+                data = await reader.readline()
+                if not data:
+                    return
 
-            if not username:
-                while True:
-                    username = f"User{random.randint(10000, 99999)}"
+                username = data.decode().strip()
+                existing_users = {
+                    client["username"]
+                    for client in self.clients.values()
+                }
 
-                    existing_users = [
-                        client["username"]
-                        for client in self.clients.values()
-                    ]
+                if not username:
+                    while True:
+                        username = f"User{random.randint(10000, 99999)}"
+                        if username not in existing_users:
+                            break
+                    break
 
-                    if username not in existing_users:
-                        break
-            #TODO username uniqeness
-            #SZIA
-            #SZIA 2
+                if username in existing_users:
+                    writer.write(
+                        b"Username already taken. Please choose another one.\n"
+                    )
+                    await writer.drain()
+                    continue
 
-            else:
-                while True:
-                    username = data.decode().strip()
-
-                    existing_users = [
-                        client["username"]
-                        for client in self.clients.values()
-                    ]
-
-                    if username in existing_users:
-                        break
+                break
 
             self.clients[writer] = {
                 "username": username,
                 "room": None
             }
+
+            writer.write(b"Username accepted\n")
+            await writer.drain()
 
             writer.write(f"Welcome to the chat server {username}!\n".encode())
             await writer.drain()

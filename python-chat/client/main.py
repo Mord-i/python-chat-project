@@ -37,10 +37,29 @@ async def main():
 
     print("Connected to server")
     print("For annonimous chat, just press enter without typing a username.")
-    username = input("Username: ")
 
-    writer.write((username + "\n").encode())
-    await writer.drain()
+    while True:
+
+        username = await asyncio.to_thread(input, "Username: ")
+
+        writer.write((username + "\n").encode())
+        await writer.drain()
+
+        response = await reader.readline()
+        if not response:
+            raise ConnectionError(
+                "Server disconnected during username selection"
+            )
+        response = response.decode().strip()
+
+        if response == "Username accepted":
+            break
+        elif response == "Username already taken. Please choose another one.":
+            print(response)
+        else:
+            raise RuntimeError(
+                f"Unexpected response during username selection: {response}"
+            )
 
     await asyncio.gather(
         receive_messages(reader),
