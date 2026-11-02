@@ -1,5 +1,6 @@
 import asyncio
 import random
+import string
 
 class ChatServer:
 
@@ -20,7 +21,7 @@ class ChatServer:
         try:
             #Receive the username from the client
             data = await reader.readline()
-            username = data.decode().strip()
+            #username = data.decode().strip()
 
             if not username:
                 while True:
@@ -32,6 +33,19 @@ class ChatServer:
                     ]
 
                     if username not in existing_users:
+                        break
+            #TODO username uniqeness
+
+            else:
+                while True:
+                    username = data.decode().strip()
+
+                    existing_users = [
+                        client["username"]
+                        for client in self.clients.values()
+                    ]
+
+                    if username in existing_users:
                         break
 
             self.clients[writer] = {
@@ -214,13 +228,14 @@ class ChatServer:
 
     async def start(self):
 
+        port_number = 5000
         server = await asyncio.start_server(
             self.handle_client,
             "0.0.0.0",
-            5000
+            port_number
         )
 
-        print("Chat server running on port 5000")
+        print(f"Chat server running on port {port_number}")
 
         async with server:
             await server.serve_forever()
