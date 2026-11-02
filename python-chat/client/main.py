@@ -24,6 +24,7 @@ async def send_messages(writer):
         if not message:
             continue
 
+        print("\033[1A\033[2K", end="", flush=True)
         writer.write((message + "\n").encode())
         await writer.drain()
 
@@ -55,6 +56,11 @@ async def main():
         if response == "Username accepted":
             break
         elif response == "Username already taken. Please choose another one.":
+            print(response)
+        elif response == (
+            "Username cannot start or end with punctuation "
+            "or whitespace. Please choose another one."
+        ):
             print(response)
         else:
             raise RuntimeError(

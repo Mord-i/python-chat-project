@@ -24,18 +24,32 @@ class ChatServer:
                 if not data:
                     return
 
-                username = data.decode().strip()
+                username = data.decode().rstrip("\r\n")
                 existing_users = {
                     client["username"]
                     for client in self.clients.values()
                 }
 
-                if not username:
+                if not username.strip():
                     while True:
                         username = f"User{random.randint(10000, 99999)}"
                         if username not in existing_users:
                             break
                     break
+
+                invalid_boundary_characters = (
+                    string.punctuation + string.whitespace
+                )
+                if (
+                    username[0] in invalid_boundary_characters
+                    or username[-1] in invalid_boundary_characters
+                ):
+                    writer.write(
+                        b"Username cannot start or end with punctuation "
+                        b"or whitespace. Please choose another one.\n"
+                    )
+                    await writer.drain()
+                    continue
 
                 if username in existing_users:
                     writer.write(
@@ -132,11 +146,11 @@ class ChatServer:
             self.rooms[new_room].add(writer)
             self.clients[writer]["room"] = new_room
 
-            await self.send(writer, f"Joined room: {new_room}\n")
+            await self.send(writer, f"Joined room: {new_room}")
 
             await self.broadcast(
                 new_room,
-                f"{username} has joined the room.\n",
+                f"{username} has joined the room.",
                 exclude=writer
             )
 
@@ -202,7 +216,7 @@ class ChatServer:
 
         await self.broadcast(
             room,
-            f"{username} left the room",
+            f"{username} left the chat.",
             exclude=writer
         )
 
